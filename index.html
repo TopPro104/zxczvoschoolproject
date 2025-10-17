@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Мерч Лицея</title>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <style>
+        body { font-family: Arial; margin: 0; padding: 20px; background: #f0f0f0; }
+        .product { border: 1px solid #ddd; margin: 10px 0; padding: 10px; background: white; border-radius: 8px; }
+        .carousel { position: relative; width: 200px; height: 200px; overflow: hidden; margin-bottom: 10px; }
+        .carousel img { position: absolute; width: 100%; height: 100%; object-fit: cover; transition: left 0.5s; }
+        .price { font-weight: bold; color: green; }
+        .discount { color: orange; font-size: 0.9em; }
+        .out-of-stock { color: red; }
+        button { background: #0088cc; color: white; border: none; padding: 10px; cursor: pointer; border-radius: 4px; }
+        button:hover { background: #006699; }
+        #filter { margin-bottom: 20px; padding: 10px; width: 100%; box-sizing: border-box; }
+        .back { background: #ccc; margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <h1>Каталог мерча лицея</h1>
+    <input type="number" id="filter" placeholder="Макс. конечная цена" oninput="filterProducts()">
+    <div id="catalog"></div>
+
+    <script>
+        // Товары с реальными фото с GitHub
+        const products = [
+            { id: 161025001, name: "Блокнот", description: "Качественный блокнот для студентов лицея", price: 150.00, discount: 0.30, final_price: 105.00, stock: 200, images: ["https://raw.githubusercontent.com/TopPro104/zxczvoschoolproject/main/%D0%B1%D0%BB%D0%BE%D0%BA%D0%BD%D0%BE%D1%82_1.png", "https://raw.githubusercontent.com/TopPro104/zxczvoschoolproject/main/%D0%B1%D0%BB%D0%BE%D0%BA%D0%BD%D0%BE%D1%82_2.png"] },
+            { id: 161025002, name: "Ежедневник", description: "Стильный ежедневник для планирования", price: 200.00, discount: 0.00, final_price: 200.00, stock: 200, images: ["https://raw.githubusercontent.com/TopPro104/zxczvoschoolproject/main/%D0%B5%D0%B6%D0%B5%D0%B4%D0%BD%D0%B5%D0%B2%D0%BD%D0%B8%D0%BA_1.png", "https://raw.githubusercontent.com/TopPro104/zxczvoschoolproject/main/%D0%B5%D0%B6%D0%B5%D0%B4%D0%BD%D0%B5%D0%B2%D0%BD%D0%B8%D0%BA_2.png"] },
+            { id: 161025003, name: "Кепка", description: "Классическая кепка с логотипом", price: 800.00, discount: 0.00, final_price: 800.00, stock: 50, images: ["https://raw.githubusercontent.com/TopPro104/zxczvoschoolproject/main/%D0%BA%D0%B5%D0%BF%D0%BA%D0%B0_1.png", "https://raw.githubusercontent.com/TopPro104/zxczvoschoolproject/main/%D0%BA%D0%B5%D0%BF%D0%BA%D0%B0_2.png"] },
+            { id: 161025004, name: "Футболка", description: "Удобная футболка для повседневки", price: 950.00, discount: 0.00, final_price: 950.00, stock: 50, images: ["https://raw.githubusercontent.com/TopPro104/zxczvoschoolproject/main/%D1%84%D1%83%D1%82%D0%B1%D0%BE%D0%BB%D0%BA%D0%B0_1.png", "https://raw.githubusercontent.com/TopPro104/zxczvoschoolproject/main/%D1%84%D1%83%D1%82%D0%B1%D0%BE%D0%BB%D0%BA%D0%B0_2.png"] },
+            { id: 161025005, name: "Худи", description: "Теплая худи с принтом лицея", price: 4000.00, discount: 0.10, final_price: 3600.00, stock: 60, images: ["https://raw.githubusercontent.com/TopPro104/zxczvoschoolproject/main/%D1%85%D1%83%D0%B4%D0%B8_1.png", "https://raw.githubusercontent.com/TopPro104/zxczvoschoolproject/main/%D1%85%D1%83%D0%B4%D0%B8_2.png"] },
+            { id: 161025006, name: "Шопер", description: "Экологичный шопер для покупок", price: 500.00, discount: 0.05, final_price: 475.00, stock: 100, images: ["https://raw.githubusercontent.com/TopPro104/zxczvoschoolproject/main/%D1%88%D0%BE%D0%BF%D0%B5%D1%80_1.png", "https://raw.githubusercontent.com/TopPro104/zxczvoschoolproject/main/%D1%88%D0%BE%D0%BF%D0%B5%D1%80_2.png"] }
+        ];
+
+        function renderCatalog(prods = products) {
+            const catalog = document.getElementById('catalog');
+            catalog.innerHTML = prods.map(p => `
+                <div class="product">
+                    <div class="carousel">
+                        ${p.images.map((img, i) => `<img src="${img}" style="left: ${i * 100}%;">`).join('')}
+                        <button class="back" onclick="prevSlide(this.parentElement)">‹</button>
+                        <button class="back" onclick="nextSlide(this.parentElement)">›</button>
+                    </div>
+                    <h3>${p.name}</h3>
+                    <p>${p.description}</p>
+                    <p class="price">${p.final_price.toFixed(2)} ₽ ${p.discount > 0 ? `<span class="discount">(-${(p.discount*100).toFixed(0)}% от ${p.price.toFixed(2)} ₽)</span>` : ''}</p>
+                    <p>${p.stock > 0 ? `В наличии (${p.stock})` : 'Нет на складе'}</p>
+                    ${p.stock > 0 ? `<button onclick="addToCart(${p.id}, 1)">В корзину</button>` : ''}
+                </div>
+            `).join('');
+        }
+
+        function prevSlide(carousel) {
+            const imgs = carousel.querySelectorAll('img');
+            imgs[0].style.left = imgs[0].style.left === '0%' ? '-100%' : '0%';
+        }
+
+        function nextSlide(carousel) {
+            const imgs = carousel.querySelectorAll('img');
+            imgs[0].style.left = imgs[0].style.left === '-100%' ? '0%' : '-100%';
+        }
+
+        function addToCart(id, qty) {
+            const link = `https://t.me/School_projewct_bot?start=add_${id}_${qty}`;
+            Telegram.WebApp.openTelegramLink(link);
+            Telegram.WebApp.close();
+        }
+
+        function filterProducts() {
+            const maxPrice = parseFloat(document.getElementById('filter').value) || Infinity;
+            const filtered = products.filter(p => p.final_price <= maxPrice);
+            renderCatalog(filtered);
+        }
+
+        if (window.Telegram && Telegram.WebApp) {
+            Telegram.WebApp.ready();
+            Telegram.WebApp.expand();
+        }
+        renderCatalog();
+    </script>
+</body>
+</html>
