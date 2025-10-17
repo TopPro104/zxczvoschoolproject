@@ -15,6 +15,12 @@
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
             min-height: 100vh;
             overflow-x: hidden;
+            color: #333;
+            transition: background 0.3s ease, color 0.3s ease; /* iба чоткая смена тем */
+        }
+        body.dark {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: #ecf0f1;
         }
         h1 { 
             text-align: center; 
@@ -23,6 +29,7 @@
             text-shadow: 0 2px 10px rgba(0,0,0,0.3);
             animation: fadeInDown 1s ease-out;
         }
+        body.dark h1 { text-shadow: 0 2px 10px rgba(255,255,255,0.3); }
         @keyframes fadeInDown {
             from { opacity: 0; transform: translateY(-20px); }
             to { opacity: 1; transform: translateY(0); }
@@ -37,6 +44,12 @@
             background: rgba(255,255,255,0.9); 
             box-shadow: 0 4px 20px rgba(0,0,0,0.1);
             transition: all 0.3s ease;
+            color: #333;
+        }
+        body.dark #filter {
+            background: rgba(0,0,0,0.7);
+            border-color: rgba(255,255,255,0.2);
+            color: #ecf0f1;
         }
         #filter:focus {
             border-color: #fff; 
@@ -58,10 +71,17 @@
             transform: translateY(30px);
             animation: fadeInUp 0.6s ease-out forwards;
             position: relative;
+            color: #333;
+        }
+        body.dark .product {
+            background: rgba(0,0,0,0.6);
+            box-shadow: 0 8px 30px rgba(255,255,255,0.1);
+            color: #ecf0f1;
         }
         .product::before {
             content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; border-radius: 20px; background: linear-gradient(45deg, transparent, rgba(102, 126, 234, 0.1)); opacity: 0; transition: opacity 0.3s;
         }
+        body.dark .product::before { background: linear-gradient(45deg, transparent, rgba(52, 73, 94, 0.3)); }
         .product:nth-child(1) { animation-delay: 0.1s; }
         .product:nth-child(2) { animation-delay: 0.2s; }
         .product:nth-child(3) { animation-delay: 0.3s; }
@@ -75,7 +95,8 @@
             transform: translateY(-10px) rotate(1deg); 
             box-shadow: 0 15px 40px rgba(0,0,0,0.2); 
         }
-        .product:hover::before { opacity: 1; } /* glow на ховер, чтоб мерч "загорелся" */
+        body.dark .product:hover { box-shadow: 0 15px 40px rgba(255,255,255,0.15); }
+        .product:hover::before { opacity: 1; }
         .carousel { 
             position: relative; 
             width: 100%; 
@@ -85,6 +106,7 @@
             border-radius: 15px; 
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
+        body.dark .carousel { box-shadow: 0 4px 15px rgba(255,255,255,0.1); }
         .carousel img { 
             position: absolute; 
             width: 100%; 
@@ -107,10 +129,12 @@
             transition: all 0.3s ease;
             backdrop-filter: blur(10px);
         }
+        body.dark .carousel .nav-btn { background: rgba(255,255,255,0.2); }
         .carousel .nav-btn:hover {
             background: rgba(0,0,0,0.8); 
             transform: translateY(-50%) scale(1.1);
         }
+        body.dark .carousel .nav-btn:hover { background: rgba(255,255,255,0.3); }
         .carousel .prev { left: 10px; }
         .carousel .next { right: 10px; }
         .carousel-dots {
@@ -127,22 +151,27 @@
             transition: all 0.3s ease;
             cursor: pointer;
         }
+        body.dark .dot { background: rgba(255,255,255,0.3); }
         .dot.active {
             background: #667eea;
             transform: scale(1.2);
         }
+        body.dark .dot.active { background: #5a67d8; }
         .price { 
             font-weight: bold; 
             color: #28a745; 
             font-size: 1.3em; 
             margin: 10px 0;
         }
+        body.dark .price { color: #55a368; }
         .discount { 
             color: #ffc107; 
             font-size: 0.95em; 
             display: block;
         }
+        body.dark .discount { color: #ffd700; }
         .out-of-stock { color: #dc3545; }
+        body.dark .out-of-stock { color: #e74c3c; }
         button { 
             background: linear-gradient(45deg, #667eea, #764ba2); 
             color: white; 
@@ -160,6 +189,9 @@
             position: relative;
             overflow: hidden;
         }
+        body.dark button {
+            background: linear-gradient(45deg, #5a67d8, #6b46c1);
+        }
         button::before {
             content: '';
             position: absolute;
@@ -170,7 +202,7 @@
             background: rgba(255,255,255,0.3);
             border-radius: 50%;
             transform: translate(-50%, -50%);
-            transition: width 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), height 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94); /* ripple теперь с крутой кривой, чтоб как волна */
+            transition: width 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), height 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
         }
         button:active::before {
             width: 200px;
@@ -180,10 +212,12 @@
             background: linear-gradient(45deg, #5a67d8, #6b46c1); 
             transform: translateY(-2px);
         }
+        body.dark button:hover { background: linear-gradient(45deg, #4c51bf, #553c9a); }
         .out-of-stock + button { 
             background: linear-gradient(45deg, #6c757d, #495057); 
             cursor: not-allowed; 
         }
+        body.dark .out-of-stock + button { background: linear-gradient(45deg, #495057, #2d3436); }
         .out-of-stock + button:hover {
             transform: none;
         }
@@ -196,6 +230,10 @@
             background: rgba(0,0,0,0.1);
             border-radius: 15px;
             animation: fadeIn 1s ease-out 0.5s both;
+        }
+        body.dark footer {
+            color: rgba(0,0,0,0.8);
+            background: rgba(255,255,255,0.2);
         }
         @keyframes fadeIn {
             from { opacity: 0; }
@@ -225,7 +263,15 @@
         ];
 
         let currentSlides = {};
-        let filterTimeout; // debounce для фильтра, чтоб не лагало на ввод, вроде ща все норм выглядит но нужно будет еще чекнуть как он работает в браузере и в обычном веб-аппе
+        let filterTimeout;
+
+        function updateTheme() {
+            if (Telegram.WebApp.colorScheme === 'dark') {
+                document.body.classList.add('dark');
+            } else {
+                document.body.classList.remove('dark');
+            }
+        }
 
         function renderCatalog(prods = products) {
             const catalog = document.getElementById('catalog');
@@ -253,21 +299,19 @@
 
         function initCarousel(productId) {
             const carousel = document.querySelector(`[data-product="${productId}"]`);
-            const dotsContainer = document.querySelector(`[data-product="${productId}"] + .carousel-dots`); 
+            const dotsContainer = document.querySelector(`[data-product="${productId}"] + .carousel-dots`);
             if (!carousel || !dotsContainer) return;
 
             const imgs = carousel.querySelectorAll('img');
             const numSlides = imgs.length;
             if (numSlides <= 1) return;
 
-            
             dotsContainer.innerHTML = Array.from({length: numSlides}, (_, i) => 
                 `<span class="dot ${i === 0 ? 'active' : ''}" onclick="goToSlide(this.parentElement.previousElementSibling, ${i})"></span>`
             );
 
             if (!currentSlides[productId]) currentSlides[productId] = 0;
 
-            // Авто-слайд как то странно выглядит но без него тока хуже, оставлю а потом мб изменю на что то другое
             setInterval(() => {
                 changeSlide(carousel, 1);
             }, 4000);
@@ -318,6 +362,8 @@
         if (window.Telegram && Telegram.WebApp) {
             Telegram.WebApp.ready();
             Telegram.WebApp.expand();
+            updateTheme(); 
+            Telegram.WebApp.onEvent('themeChanged', updateTheme); // слушаем свитчи (ну типо нинтендо свич2 понял да типо прикол типо свич ну кароч консолька такая ну понял же прикольчик да??????)
         }
         renderCatalog();
     </script>
