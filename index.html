@@ -7,59 +7,212 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        * { box-sizing: border-box; }
         body { 
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
             margin: 0; 
             padding: 20px; 
-            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); 
             min-height: 100vh;
+            overflow-x: hidden;
         }
-        h1 { text-align: center; color: #333; margin-bottom: 10px; }
+        h1 { 
+            text-align: center; 
+            color: white; 
+            margin-bottom: 20px; 
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            animation: fadeInDown 1s ease-out;
+        }
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
         #filter { 
-            margin-bottom: 20px; padding: 12px; width: 100%; box-sizing: border-box; 
-            border: 2px solid #ddd; border-radius: 25px; font-size: 16px; 
-            background: white; box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px; 
+            padding: 15px; 
+            width: 100%; 
+            border: 2px solid rgba(255,255,255,0.3); 
+            border-radius: 30px; 
+            font-size: 16px; 
+            background: rgba(255,255,255,0.9); 
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+        }
+        #filter:focus {
+            border-color: #fff; 
+            box-shadow: 0 0 0 3px rgba(255,255,255,0.2);
+            transform: scale(1.02);
         }
         #catalog { 
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); 
+            gap: 25px; 
         }
         .product { 
-            background: white; border-radius: 15px; padding: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
-            transition: transform 0.3s, box-shadow 0.3s; 
+            background: rgba(255,255,255,0.95); 
+            border-radius: 20px; 
+            padding: 20px; 
+            box-shadow: 0 8px 30px rgba(0,0,0,0.15); 
+            transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94); 
+            opacity: 0; 
+            transform: translateY(30px);
+            animation: fadeInUp 0.6s ease-out forwards;
+            position: relative;
         }
-        .product:hover { transform: translateY(-5px); box-shadow: 0 8px 25px rgba(0,0,0,0.15); }
+        .product::before {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; border-radius: 20px; background: linear-gradient(45deg, transparent, rgba(102, 126, 234, 0.1)); opacity: 0; transition: opacity 0.3s;
+        }
+        .product:nth-child(1) { animation-delay: 0.1s; }
+        .product:nth-child(2) { animation-delay: 0.2s; }
+        .product:nth-child(3) { animation-delay: 0.3s; }
+        .product:nth-child(4) { animation-delay: 0.4s; }
+        .product:nth-child(5) { animation-delay: 0.5s; }
+        .product:nth-child(6) { animation-delay: 0.6s; }
+        @keyframes fadeInUp {
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .product:hover { 
+            transform: translateY(-10px) rotate(1deg); 
+            box-shadow: 0 15px 40px rgba(0,0,0,0.2); 
+        }
+        .product:hover::before { opacity: 1; } /* glow на ховер, чтоб мерч "загорелся" */
         .carousel { 
-            position: relative; width: 100%; height: 200px; overflow: hidden; margin-bottom: 10px; border-radius: 10px; 
+            position: relative; 
+            width: 100%; 
+            height: 220px; 
+            overflow: hidden; 
+            margin-bottom: 15px; 
+            border-radius: 15px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
         .carousel img { 
-            position: absolute; width: 100%; height: 100%; object-fit: cover; transition: left 0.5s ease; 
+            position: absolute; 
+            width: 100%; 
+            height: 100%; 
+            object-fit: cover; 
+            transition: left 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94); 
         }
         .carousel .nav-btn { 
-            position: absolute; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.5); color: white; 
-            border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; font-size: 18px; 
+            position: absolute; 
+            top: 50%; 
+            transform: translateY(-50%); 
+            background: rgba(0,0,0,0.6); 
+            color: white; 
+            border: none; 
+            width: 45px; 
+            height: 45px; 
+            border-radius: 50%; 
+            cursor: pointer; 
+            font-size: 16px; 
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+        .carousel .nav-btn:hover {
+            background: rgba(0,0,0,0.8); 
+            transform: translateY(-50%) scale(1.1);
         }
         .carousel .prev { left: 10px; }
         .carousel .next { right: 10px; }
-        .price { font-weight: bold; color: #28a745; font-size: 1.2em; }
-        .discount { color: #ffc107; font-size: 0.9em; }
+        .carousel-dots {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 10px;
+        }
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        .dot.active {
+            background: #667eea;
+            transform: scale(1.2);
+        }
+        .price { 
+            font-weight: bold; 
+            color: #28a745; 
+            font-size: 1.3em; 
+            margin: 10px 0;
+        }
+        .discount { 
+            color: #ffc107; 
+            font-size: 0.95em; 
+            display: block;
+        }
         .out-of-stock { color: #dc3545; }
         button { 
-            background: linear-gradient(45deg, #007bff, #0056b3); color: white; border: none; padding: 10px 15px; 
-            cursor: pointer; border-radius: 25px; font-size: 14px; transition: background 0.3s; 
-            display: flex; align-items: center; gap: 5px; justify-content: center; width: 100%; 
+            background: linear-gradient(45deg, #667eea, #764ba2); 
+            color: white; 
+            border: none; 
+            padding: 12px 20px; 
+            cursor: pointer; 
+            border-radius: 30px; 
+            font-size: 15px; 
+            transition: all 0.3s ease; 
+            display: flex; 
+            align-items: center; 
+            gap: 8px; 
+            justify-content: center; 
+            width: 100%; 
+            position: relative;
+            overflow: hidden;
         }
-        button:hover { background: linear-gradient(45deg, #0056b3, #004085); }
-        .out-of-stock + button { background: #6c757d; cursor: not-allowed; }
-        footer { text-align: center; margin-top: 30px; padding: 10px; color: #666; font-style: italic; }
-        @keyframes slide { 0%, 50% { left: 0%; } 50.1%, 100% { left: -100%; } }
-        .carousel.auto-slide img:first-child { animation: slide 6s infinite; }
+        button::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255,255,255,0.3);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94), height 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94); /* ripple теперь с крутой кривой, чтоб как волна */
+        }
+        button:active::before {
+            width: 200px;
+            height: 200px;
+        }
+        button:hover { 
+            background: linear-gradient(45deg, #5a67d8, #6b46c1); 
+            transform: translateY(-2px);
+        }
+        .out-of-stock + button { 
+            background: linear-gradient(45deg, #6c757d, #495057); 
+            cursor: not-allowed; 
+        }
+        .out-of-stock + button:hover {
+            transform: none;
+        }
+        footer { 
+            text-align: center; 
+            margin-top: 40px; 
+            padding: 15px; 
+            color: rgba(255,255,255,0.8); 
+            font-style: italic; 
+            background: rgba(0,0,0,0.1);
+            border-radius: 15px;
+            animation: fadeIn 1s ease-out 0.5s both;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @media (max-width: 600px) {
+            #catalog { grid-template-columns: 1fr; }
+            .product { padding: 15px; }
+            .carousel { height: 180px; }
+        }
     </style>
 </head>
 <body>
     <h1><i class="fas fa-shopping-bag"></i> Каталог мерча лицея</h1>
-    <input type="number" id="filter" placeholder="Макс. конечная цена" oninput="filterProducts()">
+    <input type="number" id="filter" placeholder="Макс. конечная цена (₽)" oninput="debouncedFilter()">
     <div id="catalog"></div>
-    <footer>⚠️ Синхронизация кол-ва товаров с реальными пока не настроена, но когда-нибудь она точно будет... когда-нибудь... когда-нибудь...</footer> 
+    <footer><i class="fas fa-magic"></i>⚠️ Синхронизация кол-ва товаров с реальными пока не настроена, но когда-нибудь она точно будет... когда-нибудь... когда-нибудь...</footer> 
 
     <script>
         let products = [
@@ -71,59 +224,95 @@
             { id: 161025006, name: "Шопер", description: "Экологичный шопер для покупок", price: 500.00, discount: 0.05, final_price: 475.00, stock: 100, images: ["https://raw.githubusercontent.com/TopPro104/zxczvoschoolproject/main/%D1%88%D0%BE%D0%BF%D0%B5%D1%80_1.png", "https://raw.githubusercontent.com/TopPro104/zxczvoschoolproject/main/%D1%88%D0%BE%D0%BF%D0%B5%D1%80_2.png"] }
         ];
 
-        let currentSlides = {};  // лол я хз честно как глайд работает но мне с этим подсказал grok, я ему верю больше чем себе🙏🙏🙏
+        let currentSlides = {};
+        let filterTimeout; // debounce для фильтра, чтоб не лагало на ввод, вроде ща все норм выглядит но нужно будет еще чекнуть как он работает в браузере и в обычном веб-аппе
 
         function renderCatalog(prods = products) {
             const catalog = document.getElementById('catalog');
-            catalog.innerHTML = prods.map(p => `
-                <div class="product">
-                    <div class="carousel auto-slide" data-product="${p.id}">
+            catalog.innerHTML = prods.map((p, index) => `
+                <div class="product" style="animation-delay: ${0.1 * index}s;">
+                    <div class="carousel" data-product="${p.id}">
                         ${p.images.map((img, i) => `<img src="${img}" style="left: ${i * 100}%;">`).join('')}
-                        <button class="nav-btn prev" onclick="prevSlide(this.parentElement)"><i class="fas fa-chevron-left"></i></button>
-                        <button class="nav-btn next" onclick="nextSlide(this.parentElement)"><i class="fas fa-chevron-right"></i></button>
+                        <button class="nav-btn prev" onclick="changeSlide(this.parentElement, -1)"><i class="fas fa-chevron-left"></i></button>
+                        <button class="nav-btn next" onclick="changeSlide(this.parentElement, 1)"><i class="fas fa-chevron-right"></i></button>
                     </div>
-                    <h3>${p.name}</h3>
+                    <div class="carousel-dots" data-product="${p.id}"></div>
+                    <h3><i class="fas fa-tag"></i> ${p.name}</h3>
                     <p>${p.description}</p>
                     <p class="price">${p.final_price.toFixed(2)} ₽ ${p.discount > 0 ? `<span class="discount">(-${(p.discount*100).toFixed(0)}% от ${p.price.toFixed(2)} ₽)</span>` : ''}</p>
-                    <p>${p.stock > 0 ? `<i class="fas fa-check-circle"></i> В наличии (${p.stock})` : '<i class="fas fa-times-circle"></i> Нет на складе'}</p>
-                    ${p.stock > 0 ? `<button onclick="addToCart(${p.id}, 1)"><i class="fas fa-cart-plus"></i> В корзину</button>` : '<button disabled><i class="fas fa-ban"></i> Нет в наличии</button>'}
+                    <p>${p.stock > 0 ? `<i class="fas fa-check-circle" style="color: #28a745;"></i> В наличии (${p.stock})` : '<i class="fas fa-times-circle" style="color: #dc3545;"></i> Нет на складе'}</p>
+                    ${p.stock > 0 ? `<button onclick="addToCart(${p.id}, 1)"><i class="fas fa-cart-plus"></i> В корзину</button>` : '<button disabled class="out-of-stock"><i class="fas fa-ban"></i> Нет в наличии</button>'}
                 </div>
             `).join('');
-            startAutoSlides();
-        }
-
-        function startAutoSlides() {
-            document.querySelectorAll('.carousel').forEach(carousel => {
-                const id = carousel.dataset.product;
-                if (!currentSlides[id]) currentSlides[id] = 0;
-                setInterval(() => {
-                    nextSlide(carousel);
-                }, 3000);
+            prods.forEach((p, index) => {
+                setTimeout(() => {
+                    initCarousel(p.id);
+                }, 100 * index);
             });
         }
 
-        function prevSlide(carousel) {
+        function initCarousel(productId) {
+            const carousel = document.querySelector(`[data-product="${productId}"]`);
+            const dotsContainer = document.querySelector(`[data-product="${productId}"] + .carousel-dots`); 
+            if (!carousel || !dotsContainer) return;
+
             const imgs = carousel.querySelectorAll('img');
-            currentSlides[carousel.dataset.product] = currentSlides[carousel.dataset.product] === 0 ? imgs.length - 1 : currentSlides[carousel.dataset.product] - 1;
-            imgs.forEach((img, i) => img.style.left = (i - currentSlides[carousel.dataset.product]) * 100 + '%');
+            const numSlides = imgs.length;
+            if (numSlides <= 1) return;
+
+            
+            dotsContainer.innerHTML = Array.from({length: numSlides}, (_, i) => 
+                `<span class="dot ${i === 0 ? 'active' : ''}" onclick="goToSlide(this.parentElement.previousElementSibling, ${i})"></span>`
+            );
+
+            if (!currentSlides[productId]) currentSlides[productId] = 0;
+
+            // Авто-слайд как то странно выглядит но без него тока хуже, оставлю а потом мб изменю на что то другое
+            setInterval(() => {
+                changeSlide(carousel, 1);
+            }, 4000);
         }
 
-        function nextSlide(carousel) {
+        function changeSlide(carousel, direction) {
+            const productId = carousel.dataset.product;
             const imgs = carousel.querySelectorAll('img');
-            currentSlides[carousel.dataset.product] = (currentSlides[carousel.dataset.product] + 1) % imgs.length;
-            imgs.forEach((img, i) => img.style.left = (i - currentSlides[carousel.dataset.product]) * 100 + '%');
+            const dots = carousel.nextElementSibling.querySelectorAll('.dot');
+            currentSlides[productId] = (currentSlides[productId] + direction + imgs.length) % imgs.length;
+            imgs.forEach((img, i) => img.style.left = (i - currentSlides[productId]) * 100 + '%');
+            dots.forEach((dot, i) => dot.classList.toggle('active', i === currentSlides[productId]));
+        }
+
+        function goToSlide(carousel, slideIndex) {
+            const productId = carousel.dataset.product;
+            const imgs = carousel.querySelectorAll('img');
+            const dots = carousel.nextElementSibling.querySelectorAll('.dot');
+            currentSlides[productId] = slideIndex;
+            imgs.forEach((img, i) => img.style.left = (i - slideIndex) * 100 + '%');
+            dots.forEach((dot, i) => dot.classList.toggle('active', i === slideIndex));
         }
 
         function addToCart(id, qty) {
-            const link = `https://t.me/School_projewct_bot?start=add_${id}_${qty}`;
-            Telegram.WebApp.openTelegramLink(link);
-            Telegram.WebApp.close();
+            const btn = event.target.closest('button');
+            btn.style.transform = 'scale(0.95)';
+            setTimeout(() => {
+                const link = `https://t.me/School_projewct_bot?start=add_${id}_${qty}`;
+                Telegram.WebApp.openTelegramLink(link);
+                Telegram.WebApp.close();
+            }, 150);
         }
 
-        function filterProducts() {
-            const maxPrice = parseFloat(document.getElementById('filter').value) || Infinity;
-            const filtered = products.filter(p => p.final_price <= maxPrice);
-            renderCatalog(filtered);
+        function debouncedFilter() {
+            clearTimeout(filterTimeout);
+            filterTimeout = setTimeout(() => {
+                const maxPrice = parseFloat(document.getElementById('filter').value) || Infinity;
+                const filtered = products.filter(p => p.final_price <= maxPrice);
+                const catalog = document.getElementById('catalog');
+                catalog.style.opacity = '0.5';
+                setTimeout(() => {
+                    renderCatalog(filtered);
+                    catalog.style.opacity = '1';
+                }, 200);
+            }, 300);
         }
 
         if (window.Telegram && Telegram.WebApp) {
