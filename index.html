@@ -5,28 +5,64 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Мерч Лицея</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { font-family: Arial; margin: 0; padding: 20px; background: #f0f0f0; }
-        .product { border: 1px solid #ddd; margin: 10px 0; padding: 10px; background: white; border-radius: 8px; }
-        .carousel { position: relative; width: 200px; height: 200px; overflow: hidden; margin-bottom: 10px; }
-        .carousel img { position: absolute; width: 100%; height: 100%; object-fit: cover; transition: left 0.5s; }
-        .price { font-weight: bold; color: green; }
-        .discount { color: orange; font-size: 0.9em; }
-        .out-of-stock { color: red; }
-        button { background: #0088cc; color: white; border: none; padding: 10px; cursor: pointer; border-radius: 4px; }
-        button:hover { background: #006699; }
-        #filter { margin-bottom: 20px; padding: 10px; width: 100%; box-sizing: border-box; }
-        .back { background: #ccc; margin-top: 10px; }
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            margin: 0; 
+            padding: 20px; 
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%); 
+            min-height: 100vh;
+        }
+        h1 { text-align: center; color: #333; margin-bottom: 10px; }
+        #filter { 
+            margin-bottom: 20px; padding: 12px; width: 100%; box-sizing: border-box; 
+            border: 2px solid #ddd; border-radius: 25px; font-size: 16px; 
+            background: white; box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        #catalog { 
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px; 
+        }
+        .product { 
+            background: white; border-radius: 15px; padding: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); 
+            transition: transform 0.3s, box-shadow 0.3s; 
+        }
+        .product:hover { transform: translateY(-5px); box-shadow: 0 8px 25px rgba(0,0,0,0.15); }
+        .carousel { 
+            position: relative; width: 100%; height: 200px; overflow: hidden; margin-bottom: 10px; border-radius: 10px; 
+        }
+        .carousel img { 
+            position: absolute; width: 100%; height: 100%; object-fit: cover; transition: left 0.5s ease; 
+        }
+        .carousel .nav-btn { 
+            position: absolute; top: 50%; transform: translateY(-50%); background: rgba(0,0,0,0.5); color: white; 
+            border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; font-size: 18px; 
+        }
+        .carousel .prev { left: 10px; }
+        .carousel .next { right: 10px; }
+        .price { font-weight: bold; color: #28a745; font-size: 1.2em; }
+        .discount { color: #ffc107; font-size: 0.9em; }
+        .out-of-stock { color: #dc3545; }
+        button { 
+            background: linear-gradient(45deg, #007bff, #0056b3); color: white; border: none; padding: 10px 15px; 
+            cursor: pointer; border-radius: 25px; font-size: 14px; transition: background 0.3s; 
+            display: flex; align-items: center; gap: 5px; justify-content: center; width: 100%; 
+        }
+        button:hover { background: linear-gradient(45deg, #0056b3, #004085); }
+        .out-of-stock + button { background: #6c757d; cursor: not-allowed; }
+        footer { text-align: center; margin-top: 30px; padding: 10px; color: #666; font-style: italic; }
+        @keyframes slide { 0%, 50% { left: 0%; } 50.1%, 100% { left: -100%; } }
+        .carousel.auto-slide img:first-child { animation: slide 6s infinite; }
     </style>
 </head>
 <body>
-    <h1>Каталог мерча лицея</h1>
+    <h1><i class="fas fa-shopping-bag"></i> Каталог мерча лицея</h1>
     <input type="number" id="filter" placeholder="Макс. конечная цена" oninput="filterProducts()">
     <div id="catalog"></div>
+    <footer>⚠️ Синхронизация кол-ва товаров с реальными пока не настроена, но когда-нибудь она точно будет... когда-нибудь... когда-нибудь...</footer> 
 
     <script>
-        // Товары с реальными фото с GitHub
-        const products = [
+        let products = [
             { id: 161025001, name: "Блокнот", description: "Качественный блокнот для студентов лицея", price: 150.00, discount: 0.30, final_price: 105.00, stock: 200, images: ["https://raw.githubusercontent.com/TopPro104/zxczvoschoolproject/main/%D0%B1%D0%BB%D0%BE%D0%BA%D0%BD%D0%BE%D1%82_1.png", "https://raw.githubusercontent.com/TopPro104/zxczvoschoolproject/main/%D0%B1%D0%BB%D0%BE%D0%BA%D0%BD%D0%BE%D1%82_2.png"] },
             { id: 161025002, name: "Ежедневник", description: "Стильный ежедневник для планирования", price: 200.00, discount: 0.00, final_price: 200.00, stock: 200, images: ["https://raw.githubusercontent.com/TopPro104/zxczvoschoolproject/main/%D0%B5%D0%B6%D0%B5%D0%B4%D0%BD%D0%B5%D0%B2%D0%BD%D0%B8%D0%BA_1.png", "https://raw.githubusercontent.com/TopPro104/zxczvoschoolproject/main/%D0%B5%D0%B6%D0%B5%D0%B4%D0%BD%D0%B5%D0%B2%D0%BD%D0%B8%D0%BA_2.png"] },
             { id: 161025003, name: "Кепка", description: "Классическая кепка с логотипом", price: 800.00, discount: 0.00, final_price: 800.00, stock: 50, images: ["https://raw.githubusercontent.com/TopPro104/zxczvoschoolproject/main/%D0%BA%D0%B5%D0%BF%D0%BA%D0%B0_1.png", "https://raw.githubusercontent.com/TopPro104/zxczvoschoolproject/main/%D0%BA%D0%B5%D0%BF%D0%BA%D0%B0_2.png"] },
@@ -35,32 +71,47 @@
             { id: 161025006, name: "Шопер", description: "Экологичный шопер для покупок", price: 500.00, discount: 0.05, final_price: 475.00, stock: 100, images: ["https://raw.githubusercontent.com/TopPro104/zxczvoschoolproject/main/%D1%88%D0%BE%D0%BF%D0%B5%D1%80_1.png", "https://raw.githubusercontent.com/TopPro104/zxczvoschoolproject/main/%D1%88%D0%BE%D0%BF%D0%B5%D1%80_2.png"] }
         ];
 
+        let currentSlides = {};  // лол я хз честно как глайд работает но мне с этим подсказал grok, я ему верю больше чем себе🙏🙏🙏
+
         function renderCatalog(prods = products) {
             const catalog = document.getElementById('catalog');
             catalog.innerHTML = prods.map(p => `
                 <div class="product">
-                    <div class="carousel">
+                    <div class="carousel auto-slide" data-product="${p.id}">
                         ${p.images.map((img, i) => `<img src="${img}" style="left: ${i * 100}%;">`).join('')}
-                        <button class="back" onclick="prevSlide(this.parentElement)">‹</button>
-                        <button class="back" onclick="nextSlide(this.parentElement)">›</button>
+                        <button class="nav-btn prev" onclick="prevSlide(this.parentElement)"><i class="fas fa-chevron-left"></i></button>
+                        <button class="nav-btn next" onclick="nextSlide(this.parentElement)"><i class="fas fa-chevron-right"></i></button>
                     </div>
                     <h3>${p.name}</h3>
                     <p>${p.description}</p>
                     <p class="price">${p.final_price.toFixed(2)} ₽ ${p.discount > 0 ? `<span class="discount">(-${(p.discount*100).toFixed(0)}% от ${p.price.toFixed(2)} ₽)</span>` : ''}</p>
-                    <p>${p.stock > 0 ? `В наличии (${p.stock})` : 'Нет на складе'}</p>
-                    ${p.stock > 0 ? `<button onclick="addToCart(${p.id}, 1)">В корзину</button>` : ''}
+                    <p>${p.stock > 0 ? `<i class="fas fa-check-circle"></i> В наличии (${p.stock})` : '<i class="fas fa-times-circle"></i> Нет на складе'}</p>
+                    ${p.stock > 0 ? `<button onclick="addToCart(${p.id}, 1)"><i class="fas fa-cart-plus"></i> В корзину</button>` : '<button disabled><i class="fas fa-ban"></i> Нет в наличии</button>'}
                 </div>
             `).join('');
+            startAutoSlides();
+        }
+
+        function startAutoSlides() {
+            document.querySelectorAll('.carousel').forEach(carousel => {
+                const id = carousel.dataset.product;
+                if (!currentSlides[id]) currentSlides[id] = 0;
+                setInterval(() => {
+                    nextSlide(carousel);
+                }, 3000);
+            });
         }
 
         function prevSlide(carousel) {
             const imgs = carousel.querySelectorAll('img');
-            imgs[0].style.left = imgs[0].style.left === '0%' ? '-100%' : '0%';
+            currentSlides[carousel.dataset.product] = currentSlides[carousel.dataset.product] === 0 ? imgs.length - 1 : currentSlides[carousel.dataset.product] - 1;
+            imgs.forEach((img, i) => img.style.left = (i - currentSlides[carousel.dataset.product]) * 100 + '%');
         }
 
         function nextSlide(carousel) {
             const imgs = carousel.querySelectorAll('img');
-            imgs[0].style.left = imgs[0].style.left === '-100%' ? '0%' : '-100%';
+            currentSlides[carousel.dataset.product] = (currentSlides[carousel.dataset.product] + 1) % imgs.length;
+            imgs.forEach((img, i) => img.style.left = (i - currentSlides[carousel.dataset.product]) * 100 + '%');
         }
 
         function addToCart(id, qty) {
